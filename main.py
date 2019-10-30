@@ -4,9 +4,7 @@ from pygame.locals import *
 
 import levels
 from Map import *
-
-WHITE = (240, 240, 240)
-BLACK = (20, 20, 20)
+from settings import *
 
 
 def init_screen(width, height, title):
@@ -24,21 +22,20 @@ def game_loop(background, salles):
         salle.draw(background)
 
 
-size = width, height = 55, 35
-screen = init_screen(width * 20, height * 20, "Retro Dungeon")
-
-font = pygame.font.Font(None, 36)
+size = width, height = GRID_WIDTH, GRID_HEIGHT
+screen = init_screen(WIDTH, HEIGHT, TITLE)
 
 background = pygame.Surface(screen.get_size())
 background = background.convert()
 background.fill(BLACK)
 screen.blit(background, (0, 0))
 
-# dungeon_map = Map(8, width, height)
-# dungeon_map.draw(background)
+dungeon_map = Map(4, width, height)
+dungeon_map.draw(background)
+levels.display_all(dungeon_map.rooms_array)
 
 # for room in levels.generateur_salles(8, width, height):
-    # room.draw(background)
+# room.draw(background)
 
 while 1:
     for event in pygame.event.get():

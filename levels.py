@@ -1,13 +1,12 @@
 #!/usr/bin/python3
 
 # Generation salles
-from graph import Graph
 import random
 import pygame
 from pygame.locals import *
 
 
-class Dot:
+class Point:
     def __init__(self, a, b):
         self.x = a
         self.y = b
@@ -15,11 +14,11 @@ class Dot:
     def __str__(self):
         return "({}, {})".format(self.x, self.y)
 
-    def is_in(self, chamber):
-        return chamber.x_min <= self.x <= chamber.x_max and chamber.y_min <= self.y <= chamber.y_max
+    def is_in(self, room):
+        return room.x_min <= self.x <= room.x_max and room.y_min <= self.y <= room.y_max
 
 
-class Chamber:
+class Room:
     def __init__(self, dx, dy, c):
         if c == True:
             area, h_max, h_min, l_max, l_min = 0, 0, 0, 0, 0
@@ -29,13 +28,13 @@ class Chamber:
                 l_max = random.randint(0, dx)
                 l_min = random.randint(0, l_max)
                 area = (h_max - h_min) * (l_max - l_min)
-            self.corners = [Dot(l_min, h_min), Dot(l_max, h_min), Dot(l_max, h_max), Dot(l_min, h_max)]
+            self.corners = [Point(l_min, h_min), Point(l_max, h_min), Point(l_max, h_max), Point(l_min, h_max)]
             self.x_min = l_min
             self.x_max = l_max
             self.y_min = h_min
             self.y_max = h_max
         else:
-            self.corners = [Dot(dx - 1, dy + 1), Dot(dx + 1, dy + 1), Dot(dx + 1, dy - 1), Dot(dx - 1, dy - 1)]
+            self.corners = [Point(dx - 1, dy + 1), Point(dx + 1, dy + 1), Point(dx + 1, dy - 1), Point(dx - 1, dy - 1)]
             self.x_min = dx - 1
             self.x_max = dx + 1
             self.y_min = dy - 1
@@ -61,30 +60,30 @@ class Chamber:
         pygame.draw.rect(background, WHITE, rect, 0)
 
 
-def chamber_generator(n, dx, dy):
+def room_generator(n, dx, dy):
     res = []
-    chambers_generated = 0
-    while chambers_generated <= n - 1:
-        s = Chamber(dx, dy, True)
+    rooms_generated = 0
+    while rooms_generated <= n - 1:
+        s = Room(dx, dy, True)
         Appropriate = True
-        for chamber in res:
-            if s.intersection(chamber) or chamber.x_min - s.x_max == 0 or s.x_min - chamber.x_max == 0 or s.y_min - chamber.y_max == 0 or chamber.y_min - s.y_max == 0:
+        for room in res:
+            if s.intersection(room) or room.x_min - s.x_max == 0 or s.x_min - room.x_max == 0 or s.y_min - room.y_max == 0 or room.y_min - s.y_max == 0:
                 Appropriate = False
         if  4 > (s.x_max - s.x_min) or (s.x_max - s.x_min) > 2 * (s.y_max - s.y_min) or 4 > (s.y_max - s.y_min) or (s.y_max - s.y_min) > 2 * (s.x_max - s.x_min):
             Appropriate = False
         if Appropriate:
             res.append(s)
-            chambers_generated += 1
+            rooms_generated += 1
     return res
 
-def representation(chambers, dx, dy):
+def representation(rooms, dx, dy):
     res = []
     for i in range(dy + 1):
         line = []
         for j in range(dx + 1):
             tempo = str()
-            for s in chambers:
-                if Dot(j, i).is_in(s):
+            for s in rooms:
+                if Point(j, i).is_in(s):
                     line.append(0)
                     tempo += " "
                     break
@@ -102,10 +101,5 @@ def display_all(r):
             elif r[i][j] == 1:
                 res += "#"
         print(res)
-
-
-a = chamber_generator(6, 40, 40)
-b = representation(a, 40, 40)
-display_all(b)
 
 # Generation Couloirs
