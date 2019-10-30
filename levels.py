@@ -67,7 +67,7 @@ def room_generator(n, dx, dy):
         s = Room(dx, dy, True)
         Appropriate = True
         for room in res:
-            if s.intersection(room) or room.x_min - s.x_max == 0 or s.x_min - room.x_max == 0 or s.y_min - room.y_max == 0 or room.y_min - s.y_max == 0:
+            if s.intersection(room) or 0 <= room.x_min - s.x_max <= 1 or 0 <= s.x_min - room.x_max <= 1 or 0 <= s.y_min - room.y_max <= 1 or 0 <= room.y_min - s.y_max <= 1:
                 Appropriate = False
         if  4 > (s.x_max - s.x_min) or (s.x_max - s.x_min) > 2 * (s.y_max - s.y_min) or 4 > (s.y_max - s.y_min) or (s.y_max - s.y_min) > 2 * (s.x_max - s.x_min):
             Appropriate = False
