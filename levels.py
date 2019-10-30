@@ -68,7 +68,7 @@ def chamber_generator(n, dx, dy):
         s = Chamber(dx, dy, True)
         Appropriate = True
         for chamber in res:
-            if s.intersection(chamber) or chamber.x_min - s.x_max == 0 or s.x_min - chamber.x_max == 0 or s.y_min - chamber.y_max == 0 or chamber.y_min - s.y_max == 0:
+            if s.intersection(chamber) or 0 <= chamber.x_min - s.x_max <= 1 or 0 <= s.x_min - chamber.x_max <= 1 or 0 <= s.y_min - chamber.y_max <= 1 or 0 <= chamber.y_min - s.y_max <= 1:
                 Appropriate = False
         if  4 > (s.x_max - s.x_min) or (s.x_max - s.x_min) > 2 * (s.y_max - s.y_min) or 4 > (s.y_max - s.y_min) or (s.y_max - s.y_min) > 2 * (s.x_max - s.x_min):
             Appropriate = False
