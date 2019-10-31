@@ -1,3 +1,4 @@
+# Colors
 WHITE = (240, 240, 240)
 BLACK = (0, 0, 0)
 DARKGREY = (40, 40, 40)
@@ -7,7 +8,9 @@ GREEN = (40, 240, 40)
 BLUE = (40, 40, 240)
 DARKPURPLE = (37, 19, 26)
 
-TITLE = "Retro Dungeon"
+# General
+KEYBOARD = "US" # Change to "FR" for the ZQSD keys
+TITLE = "Retro Dungeon" # Amazing name
 BGCOLOR = DARKPURPLE
 FPS = 60
 TILESIZE = 32
@@ -16,3 +19,6 @@ HEIGHT = 20 * TILESIZE
 ROOMS = 4
 GRID_WIDTH = int(WIDTH / TILESIZE)
 GRID_HEIGHT = int(HEIGHT / TILESIZE)
+
+# Player
+PLAYER_SPEED = 120

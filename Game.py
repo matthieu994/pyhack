@@ -2,9 +2,10 @@ import sys
 import pygame
 from random import randrange
 
-import Level
+import Room
 from Player import *
 from Wall import *
+from Floor import *
 from settings import *
 
 
@@ -24,9 +25,10 @@ class Game:
         self.tiles = load_tiles("./assets/dungeon_tileset.png", 16, 16)
         self.sprites = pygame.sprite.Group()
         self.walls = pygame.sprite.Group()
+        self.floors = pygame.sprite.Group()
         self.player = Player(self, 0, 0)
-        self.rooms = Level.room_generator(self, 4, GRID_WIDTH, GRID_HEIGHT)
-        self.rooms_array = Level.representation(self.rooms, GRID_WIDTH, GRID_HEIGHT)
+        self.rooms = Room.room_generator(self, 4, GRID_WIDTH, GRID_HEIGHT)
+        self.rooms_array = Room.representation(self.rooms, GRID_WIDTH, GRID_HEIGHT)
 
     def run(self):
         self.playing = True
@@ -54,16 +56,6 @@ class Game:
         self.screen.fill(BGCOLOR)
         self.draw_grid()
         self.sprites.draw(self.screen)
-
-        # for x, row in enumerate(self.rooms_array):
-        #     # print(row)
-        #     for y, tile_value in enumerate(row):
-        #         if tile_value == 1:
-        #             random_floor = randrange(6, 10), randrange(0, 3)
-        #             background.blit(self.tiles[random_floor[0]][random_floor[1]], (y * TILESIZE, x * TILESIZE))
-        #         if tile_value == 0:
-        #             background.blit(self.tiles[8][7], (y * TILESIZE, x * TILESIZE))
-
         pygame.display.flip()
 
     def events(self):
@@ -72,16 +64,8 @@ class Game:
             if event.type == pygame.QUIT:
                 self.quit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE or event.key == pygame.K_q:
+                if event.key == pygame.K_ESCAPE:
                     self.quit()
-                if event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                    self.player.move(dx=- 1)
-                if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-                    self.player.move(dx=1)
-                if event.key == pygame.K_UP or event.key == pygame.K_w:
-                    self.player.move(dy=- 1)
-                if event.key == pygame.K_DOWN or event.key == pygame.K_s:
-                    self.player.move(dy=1)
 
     def show_start_screen(self):
         pass

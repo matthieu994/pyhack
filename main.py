@@ -1,9 +1,9 @@
-import Level
+import Room
 from Game import *
 from settings import *
 from Player import *
 
-# for room in levels.generateur_salles(8, width, height):
+# for room in Rooms.generateur_salles(8, width, height):
 # room.draw(background)
 
 # Main Game object

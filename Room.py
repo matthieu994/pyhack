@@ -5,6 +5,7 @@ from pygame.locals import *
 
 from settings import *
 from Wall import *
+from Floor import *
 
 
 class Point:
@@ -42,6 +43,7 @@ class Room:
             self.y_max = dy + 1
         
         self.walls = []
+        self.floors = []
 
     def init(self, dungeon):
         for x in range(self.x_min + 1, self.x_max):
@@ -58,6 +60,10 @@ class Room:
 
         self.walls.append(Wall(dungeon, self.x_min, self.y_max, "CORNER_LEFT"))
         self.walls.append(Wall(dungeon, self.x_max, self.y_max, "CORNER_RIGHT"))
+
+        for y in range(self.y_min + 1, self.y_max):
+            for x in range(self.x_min + 1, self.x_max):
+                self.floors.append(Floor(dungeon, x, y))
 
 
     def __str__(self):
