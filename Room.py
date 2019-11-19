@@ -45,6 +45,9 @@ class Room:
         self.walls = []
         self.floors = []
 
+    def manual_init(self):
+        pass
+
     def init(self, dungeon):
         for x in range(self.x_min + 1, self.x_max):
             self.walls.append(Wall(dungeon, x, self.y_min, "FRONT"))

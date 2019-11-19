@@ -10,10 +10,10 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.dungeon = dungeon
         self.image = pygame.image.load("./assets/knight/knight_f_idle_anim_f0.png")
-        # self.image = pygame.transform.scale(self.image, (32, 32))
+        self.image = pygame.transform.scale(self.image, (TILESIZE - 2, TILESIZE - 2))
         self.rect = self.image.get_rect()
-        self.x = x
-        self.y = y
+        self.x = x * TILESIZE
+        self.y = y * TILESIZE
         self.speed_x, self.speed_y = 0, 0
 
     def get_keys(self):
@@ -40,14 +40,34 @@ class Player(pygame.sprite.Sprite):
             self.speed_y *= math.sqrt(2) / 2\
 
 
+    def collide_walls(self, coord):
+        if coord == 'X':
+            collisions = pygame.sprite.spritecollide(self, self.dungeon.walls, False)
+            if collisions:
+                if self.speed_x > 0:
+                    self.x = collisions[0].rect.left - self.rect.width
+                if self.speed_x < 0:
+                    self.x = collisions[0].rect.right
+                self.speed_x = 0
+                self.rect.x = self.x
+        if coord == 'Y':
+            collisions = pygame.sprite.spritecollide(self, self.dungeon.walls, False)
+            if collisions:
+                if self.speed_y > 0:
+                    self.y = collisions[0].rect.top - self.rect.height
+                if self.speed_y < 0:
+                    self.y = collisions[0].rect.bottom
+                self.speed_y = 0
+                self.rect.y = self.y
+
     def update(self):
         self.get_keys()
-        self.rect.topleft = (self.x + self.speed_x * self.dungeon.dt, self.y + self.speed_y * self.dungeon.dt)
 
-        if not pygame.sprite.spritecollideany(self, self.dungeon.walls) \
-                and 0 <= self.rect.topleft[0] < WIDTH \
-                and 0 <= self.rect.topleft[1] < HEIGHT:
+        if 0 <= self.x + self.speed_x * self.dungeon.dt < MAP_WIDTH * TILESIZE \
+                and 0 <= self.y + self.speed_y * self.dungeon.dt < MAP_HEIGHT * TILESIZE:
             self.x += self.speed_x * self.dungeon.dt
             self.y += self.speed_y * self.dungeon.dt
-        else:
-            self.rect.topleft = (self.x, self.y)
+            self.rect.x = self.x
+            self.collide_walls('X')
+            self.rect.y = self.y
+            self.collide_walls('Y')

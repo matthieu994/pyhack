@@ -12,8 +12,8 @@ class Wall(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x * TILESIZE
         self.rect.y = y * TILESIZE
-        self.y = y
         self.x = x
+        self.y = y
 
     def rand_wall(self, type):
         if type == "FRONT":

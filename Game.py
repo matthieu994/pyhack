@@ -3,19 +3,20 @@ import pygame
 from random import randrange
 
 import Room
+from settings import *
+from Map import *
 from Player import *
 from Wall import *
 from Floor import *
-from settings import *
 
 
 class Game:
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption(TITLE)
         self.clock = pygame.time.Clock()
-        pygame.key.set_repeat(500, 100)
+        # pygame.key.set_repeat(500, 100)
         self.load_data()
 
     def load_data(self):
@@ -27,8 +28,8 @@ class Game:
         self.walls = pygame.sprite.Group()
         self.floors = pygame.sprite.Group()
         self.player = Player(self, 0, 0)
-        self.rooms = Room.room_generator(self, 4, GRID_WIDTH, GRID_HEIGHT)
-        self.rooms_array = Room.representation(self.rooms, GRID_WIDTH, GRID_HEIGHT)
+        self.map = Map(self)
+        self.camera = Camera(MAP_WIDTH * TILESIZE, MAP_HEIGHT * TILESIZE)
 
     def run(self):
         self.playing = True
@@ -39,23 +40,27 @@ class Game:
             self.draw()
 
     def quit(self):
+        self.map.save()
         pygame.quit()
         sys.exit()
 
     def update(self):
         # update portion of the game loop
         self.sprites.update()
+        self.camera.update(self.player)
 
     def draw_grid(self):
-        for x in range(0, WIDTH, TILESIZE):
-            pygame.draw.line(self.screen, LIGHTGREY, (x, 0), (x, HEIGHT))
-        for y in range(0, HEIGHT, TILESIZE):
-            pygame.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y))
+        for x in range(0, SCREEN_WIDTH, TILESIZE):
+            pygame.draw.line(self.screen, LIGHTGREY, (x, 0), (x, SCREEN_HEIGHT))
+        for y in range(0, SCREEN_HEIGHT, TILESIZE):
+            pygame.draw.line(self.screen, LIGHTGREY, (0, y), (SCREEN_WIDTH, y))
 
     def draw(self):
         self.screen.fill(BGCOLOR)
         self.draw_grid()
-        self.sprites.draw(self.screen)
+        for sprite in self.sprites:
+            self.screen.blit(sprite.image, self.camera.apply(sprite))
+
         pygame.display.flip()
 
     def events(self):
