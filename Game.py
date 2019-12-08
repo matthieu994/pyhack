@@ -45,7 +45,6 @@ class Game:
         sys.exit()
 
     def update(self):
-        # update portion of the game loop
         self.sprites.update()
         self.camera.update(self.player)
 
