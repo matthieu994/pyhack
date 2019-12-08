@@ -1,6 +1,7 @@
 # Generation salles
 import random
 import pygame
+from math import sqrt
 from pygame.locals import *
 
 from settings import *
@@ -16,58 +17,76 @@ class Point:
     def __str__(self):
         return "({}, {})".format(self.x, self.y)
 
+    # Renvoie true si le point se trouve dans le rectangle
     def is_in(self, room):
         return room.x_min <= self.x <= room.x_max and room.y_min <= self.y <= room.y_max
 
 
 class Room:
-    def __init__(self, dx, dy, c):
-        if c == True:
-            area, h_max, h_min, l_max, l_min = 0, 0, 0, 0, 0
-            while not(dx * dy / 30 <= area <= dx * dy / 25 and h_min != h_max and l_min != l_max):
-                h_max = random.randint(0, dy)
-                h_min = random.randint(0, h_max)
-                l_max = random.randint(0, dx)
-                l_min = random.randint(0, l_max)
-                area = (h_max - h_min) * (l_max - l_min)
-            self.corners = [Point(l_min, h_min), Point(l_max, h_min), Point(l_max, h_max), Point(l_min, h_max)]
-            self.x_min = l_min
-            self.x_max = l_max
-            self.y_min = h_min
-            self.y_max = h_max
-        else:
-            self.corners = [Point(dx - 1, dy + 1), Point(dx + 1, dy + 1), Point(dx + 1, dy - 1), Point(dx - 1, dy - 1)]
-            self.x_min = dx - 1
-            self.x_max = dx + 1
-            self.y_min = dy - 1
-            self.y_max = dy + 1
-        
+
+    # On fournit 4 Point qui vont representer les coins de nos salles et nos couloirs
+    # (on parcours les coins dans l'ordre horaire en commencant par le coins en haut à gauche)
+    def __init__(self, a, b, c, d):
+        self.corners = [a, b, c, d]
         self.walls = []
         self.floors = []
+        self.x_min = a.x
+        self.x_max = c.x
+        self.y_min = a.y
+        self.y_max = c.y
 
-    def manual_init(self):
-        pass
+    # Renvoie true s'il y a une collision entre deux salles
+    def intersection(self, room):
+        return self.corners[0].is_in(room) or self.corners[1].is_in(room) or self.corners[2].is_in(room) or self.corners[3].is_in(room) or room.corners[0].is_in(self) or room.corners[1].is_in(self) or room.corners[2].is_in(self) or room.corners[3].is_in(self) or (room.x_min <= self.x_min <= self.x_max <= room.x_max and self.y_min <= room.y_min <= room.y_max <= self.y_max) or (room.y_min <= self.y_min <= self.y_max <= room.y_max and self.x_min <= room.x_min <= room.x_max <= self.x_max) or (self.x_min <= room.x_min <= room.x_max <= self.x_max and room.y_min <= self.y_min <= self.y_max <= room.y_max) or (self.y_min <= room.y_min <= room.y_max <= self.y_max and room.x_min <= self.x_min <= self.x_max <= room.x_max)
 
-    def init(self, dungeon):
-        for x in range(self.x_min + 1, self.x_max):
-            self.walls.append(Wall(dungeon, x, self.y_min, "FRONT"))
+    # Renvoit un Point qui represente le centre d'un rectangle
+    def center(self):
+        return Point((self.x_max - self.x_min)/2 + self.x_min, (self.y_max - self.y_min)/2 + self.y_min)
 
-        for y in range(self.y_min, self.y_max):
-            self.walls.append(Wall(dungeon, self.x_min, y, "SIDE_LEFT"))
+    # Calcule la distance euclidienne entre 2 rectangles
+    def distance(self, r):
+        return sqrt((self.center().x - r.center().x)**2 + (self.center().y - r.center().y)**2)
 
-        for y in range(self.y_min, self.y_max):
-            self.walls.append(Wall(dungeon, self.x_max, y, "SIDE_RIGHT"))
+    # Prend en argument la liste des salles et trouve dans cette liste la salle la plus proche de self
+    def find_closest(self, rooms):
+        if self != rooms[0]:
+            dist = self.distance(rooms[0])
+            closest = (rooms[0], 0)
+        else:
+            dist = self.distance(rooms[1])
+            closest = (rooms[1], 0)
+        for i in range(len(rooms)):
+            if rooms[i] != self:
+                d = self.distance(rooms[i])
+                if d <= dist:
+                    dist = d
+                    closest = (rooms[i], i)
+        return closest
 
-        for x in range(self.x_min + 1, self.x_max):
-            self.walls.append(Wall(dungeon, x, self.y_max, "BOTTOM"))
-
-        self.walls.append(Wall(dungeon, self.x_min, self.y_max, "CORNER_LEFT"))
-        self.walls.append(Wall(dungeon, self.x_max, self.y_max, "CORNER_RIGHT"))
-
-        for y in range(self.y_min + 1, self.y_max):
+    def init_sprites(self, dungeon, corridor=False):
+        if not corridor:
             for x in range(self.x_min + 1, self.x_max):
-                self.floors.append(Floor(dungeon, x, y))
+                self.walls.append(Wall(dungeon, x, self.y_min, "FRONT"))
 
+            for y in range(self.y_min, self.y_max):
+                self.walls.append(Wall(dungeon, self.x_min, y, "SIDE_LEFT"))
+
+            for y in range(self.y_min, self.y_max):
+                self.walls.append(Wall(dungeon, self.x_max, y, "SIDE_RIGHT"))
+
+            for x in range(self.x_min + 1, self.x_max):
+                self.walls.append(Wall(dungeon, x, self.y_max, "BOTTOM"))
+
+            self.walls.append(Wall(dungeon, self.x_min, self.y_max, "CORNER_LEFT"))
+            self.walls.append(Wall(dungeon, self.x_max, self.y_max, "CORNER_RIGHT"))
+
+            for y in range(self.y_min + 1, self.y_max):
+                for x in range(self.x_min + 1, self.x_max):
+                    self.floors.append(Floor(dungeon, x, y))
+        else:
+            for y in range(self.y_min, self.y_max + 1):
+                for x in range(self.x_min, self.x_max + 1):
+                    self.floors.append(Floor(dungeon, x, y))
 
     def __str__(self):
         return '({}, {}, {}, {})'.format(self.corners[0], self.corners[1], self.corners[2], self.corners[3])
@@ -83,11 +102,24 @@ class Room:
         return res
 
 
+# Genère une salle dans un plan de dimensions x*y
+def room_gen(x, y):
+    area, h_max, h_min, l_max, l_min = 0, 0, 0, 0, 0
+    while not(x * y / 30 <= area <= x * y / 25 and h_min != h_max and l_min != l_max):
+        h_max = random.randint(0, y)
+        h_min = random.randint(0, h_max)
+        l_max = random.randint(0, x)
+        l_min = random.randint(0, l_max)
+        area = (h_max - h_min) * (l_max - l_min)
+    return Room(Point(l_min, h_min), Point(l_max, h_min), Point(l_max, h_max), Point(l_min, h_max))
+
+
+# Genère n salles dans un plan de dimensions x*y
 def room_generator(dungeon, n, dx, dy):
     res = []
     rooms_generated = 0
     while rooms_generated <= n - 1:
-        s = Room(dx, dy, True)
+        s = room_gen(dx, dy)
         Appropriate = True
         for room in res:
             if s.intersection(room) or 0 <= room.x_min - s.x_max <= 1 or 0 <= s.x_min - room.x_max <= 1 or 0 <= s.y_min - room.y_max <= 1 or 0 <= room.y_min - s.y_max <= 1:
@@ -98,9 +130,39 @@ def room_generator(dungeon, n, dx, dy):
             res.append(s)
             rooms_generated += 1
 
-    for room in res:
-        room.init(dungeon)
+    return res
 
+
+# Genère un couloir entre deux salles passées en paramètres
+def corridor_gen(r1, r2):
+    res = []
+    start = Point(random.randint(r1.x_min + 1, r1.x_max), random.randint(r1.y_min + 1, r1.y_max))
+    end = Point(random.randint(r2.x_min + 1, r2.x_max), random.randint(r2.y_min + 1, r2.y_max))
+    if end.x > start.x:
+        res.append(Room(Point(start.x, start.y - 1), Point(end.x, start.y - 1), Point(end.x, start.y + 1), Point(start.x, start.y + 1)))
+    else:
+        res.append(Room(Point(end.x, start.y - 1), Point(start.x, start.y - 1), Point(start.x, start.y + 1), Point(end.x, start.y + 1)))
+    if end.y > start.y:
+        res.append(Room(Point(end.x - 1, end.y), Point(end.x + 1, end.y), Point(end.x + 1, start.y), Point(end.x - 1, start.y)))
+    else:
+        res.append(Room(Point(end.x - 1, start.y), Point(end.x + 1, start.y), Point(end.x + 1, end.y), Point(end.x - 1, end.y)))
+
+    return res
+
+
+# Genère et retourne les couloirs qui relient les salles du level
+def level_link(rooms):
+    res = []
+    to_link = rooms.copy()
+    decal = 0
+    next = random.choice(to_link)
+    to_link.remove(next)
+    for i in range(len(to_link) - 1):
+        room_to_link = to_link[i - decal].find_closest(to_link)
+        res += corridor_gen(to_link[i - decal], room_to_link[0])
+        next = room_to_link[0]
+        to_link.remove(next)
+        decal += 1
     return res
 
 
@@ -130,5 +192,3 @@ def display_all(r):
             elif r[i][j] == 1:
                 res += "#"
         print(res)
-
-# Generation Couloirs
