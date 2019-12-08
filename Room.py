@@ -52,8 +52,8 @@ class Room:
         for x in range(self.x_min + 1, self.x_max):
             self.walls.append(Wall(dungeon, x, self.y_min, "FRONT"))
 
-        # for y in range(self.y_min, self.y_max):
-            # self.walls.append(Wall(dungeon, self.x_min, y, "SIDE_LEFT"))
+        for y in range(self.y_min, self.y_max):
+            self.walls.append(Wall(dungeon, self.x_min, y, "SIDE_LEFT"))
 
         for y in range(self.y_min, self.y_max):
             self.walls.append(Wall(dungeon, self.x_max, y, "SIDE_RIGHT"))
