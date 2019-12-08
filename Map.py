@@ -41,7 +41,7 @@ class Map:
     def generate(self):
         self.rooms = room_generator(self.dungeon, ROOMS, MAP_WIDTH, MAP_HEIGHT)
         self.corridors = level_link(self.rooms)
-        self.grid = representation(self.rooms, MAP_WIDTH, MAP_HEIGHT)
+        self.grid = representation(self.rooms + self.corridors, MAP_WIDTH, MAP_HEIGHT)
         
         for room in self.rooms:
             room.init_sprites(self.dungeon)
