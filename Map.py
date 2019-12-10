@@ -46,7 +46,7 @@ class Map:
         for room in self.rooms:
             room.init_sprites(self.dungeon)
         for corridor in self.corridors:
-            corridor.init_sprites(self.dungeon)
+            corridor.init_sprites(self.dungeon, True)
             
 
 class Camera:

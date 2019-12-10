@@ -30,10 +30,10 @@ class Room:
         self.corners = [a, b, c, d]
         self.walls = []
         self.floors = []
+        self.x_max = b.x
         self.x_min = a.x
-        self.x_max = c.x
-        self.y_min = a.y
-        self.y_max = c.y
+        self.y_max = a.y
+        self.y_min = d.y
 
     # Renvoie true s'il y a une collision entre deux salles
     def intersection(self, room):
@@ -91,16 +91,6 @@ class Room:
     def __str__(self):
         return '({}, {}, {}, {})'.format(self.corners[0], self.corners[1], self.corners[2], self.corners[3])
 
-    def intersection(self, s2):
-        res = False
-        if (s2.x_min < self.x_min <= self.x_max < s2.x_max and self.y_min < s2.y_min <= s2.y_max < self.y_max) or (self.x_min < s2.x_min <= s2.x_max < self.x_max and s2.y_min < self.y_min <= self.y_max < s2.y_max):
-            res = True
-        else:
-            for i in range(4):
-                if self.corners[i].is_in(s2) or s2.corners[i].is_in(self):
-                    res = True
-        return res
-
 
 # Genère une salle dans un plan de dimensions x*y
 def room_gen(x, y):
@@ -111,7 +101,7 @@ def room_gen(x, y):
         l_max = random.randint(0, x)
         l_min = random.randint(0, l_max)
         area = (h_max - h_min) * (l_max - l_min)
-    return Room(Point(l_min, h_min), Point(l_max, h_min), Point(l_max, h_max), Point(l_min, h_max))
+    return Room(Point(l_min, h_max), Point(l_max, h_max), Point(l_max, h_min), Point(l_min, h_min))
 
 
 # Genère n salles dans un plan de dimensions x*y
@@ -139,13 +129,13 @@ def corridor_gen(r1, r2):
     start = Point(random.randint(r1.x_min + 1, r1.x_max), random.randint(r1.y_min + 1, r1.y_max))
     end = Point(random.randint(r2.x_min + 1, r2.x_max), random.randint(r2.y_min + 1, r2.y_max))
     if end.x > start.x:
-        corridor.append(Room(Point(start.x, start.y - 1), Point(end.x, start.y - 1), Point(end.x, start.y + 1), Point(start.x, start.y + 1)))
+        corridor.append(Room(Point(start.x, start.y), Point(end.x, start.y), Point(end.x, start.y), Point(start.x, start.y)))
     else:
-        corridor.append(Room(Point(end.x, start.y - 1), Point(start.x, start.y - 1), Point(start.x, start.y + 1), Point(end.x, start.y + 1)))
+        corridor.append(Room(Point(end.x, start.y), Point(start.x, start.y), Point(start.x, start.y), Point(end.x, start.y)))
     if end.y > start.y:
-        corridor.append(Room(Point(end.x - 1, end.y), Point(end.x + 1, end.y), Point(end.x + 1, start.y), Point(end.x - 1, start.y)))
+        corridor.append(Room(Point(end.x, end.y), Point(end.x, end.y), Point(end.x, start.y), Point(end.x, start.y)))
     else:
-        corridor.append(Room(Point(end.x - 1, start.y), Point(end.x + 1, start.y), Point(end.x + 1, end.y), Point(end.x - 1, end.y)))
+        corridor.append(Room(Point(end.x, start.y), Point(end.x, start.y), Point(end.x, end.y), Point(end.x, end.y)))
     return corridor
 
 
@@ -162,8 +152,6 @@ def level_link(rooms):
         next_room = room_to_link[0]
         to_link.remove(next_room)
         decal += 1
-    print(i + 1)
-    print(len(corridors))
     return corridors
 
 
@@ -184,12 +172,21 @@ def representation(rooms, dx, dy):
     return res
 
 
-def display_all(r):
-    for i in range(len(r)):
-        res = str()
-        for j in range(len(r[i])):
-            if r[i][j] == 0:
-                res += " "
-            elif r[i][j] == 1:
-                res += "#"
-        print(res)
+def display_all(rooms, x, y):
+    for j in range(y + 1):
+        ligne = str()
+        for i in range(x + 1):
+            compteur = 0
+            for r in rooms:
+                if Point(i, j).is_in(r):
+                    ligne += " "
+                    compteur += 1
+                    break
+            if compteur == 0:
+                ligne += "#"
+        print(ligne)
+
+
+# a = room_generator(10, 50, 50)
+# b = level_link(a)
+# display_all(a + b, 50, 50)
