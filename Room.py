@@ -115,7 +115,7 @@ def room_gen(x, y):
 
 
 # Genère n salles dans un plan de dimensions x*y
-def room_generator(dungeon, n, dx, dy):
+def room_generator(n, dx, dy):
     res = []
     rooms_generated = 0
     while rooms_generated <= n - 1:
@@ -135,35 +135,36 @@ def room_generator(dungeon, n, dx, dy):
 
 # Genère un couloir entre deux salles passées en paramètres
 def corridor_gen(r1, r2):
-    res = []
+    corridor = []
     start = Point(random.randint(r1.x_min + 1, r1.x_max), random.randint(r1.y_min + 1, r1.y_max))
     end = Point(random.randint(r2.x_min + 1, r2.x_max), random.randint(r2.y_min + 1, r2.y_max))
     if end.x > start.x:
-        res.append(Room(Point(start.x, start.y - 1), Point(end.x, start.y - 1), Point(end.x, start.y + 1), Point(start.x, start.y + 1)))
+        corridor.append(Room(Point(start.x, start.y - 1), Point(end.x, start.y - 1), Point(end.x, start.y + 1), Point(start.x, start.y + 1)))
     else:
-        res.append(Room(Point(end.x, start.y - 1), Point(start.x, start.y - 1), Point(start.x, start.y + 1), Point(end.x, start.y + 1)))
+        corridor.append(Room(Point(end.x, start.y - 1), Point(start.x, start.y - 1), Point(start.x, start.y + 1), Point(end.x, start.y + 1)))
     if end.y > start.y:
-        res.append(Room(Point(end.x - 1, end.y), Point(end.x + 1, end.y), Point(end.x + 1, start.y), Point(end.x - 1, start.y)))
+        corridor.append(Room(Point(end.x - 1, end.y), Point(end.x + 1, end.y), Point(end.x + 1, start.y), Point(end.x - 1, start.y)))
     else:
-        res.append(Room(Point(end.x - 1, start.y), Point(end.x + 1, start.y), Point(end.x + 1, end.y), Point(end.x - 1, end.y)))
-
-    return res
+        corridor.append(Room(Point(end.x - 1, start.y), Point(end.x + 1, start.y), Point(end.x + 1, end.y), Point(end.x - 1, end.y)))
+    return corridor
 
 
 # Genère et retourne les couloirs qui relient les salles du level
 def level_link(rooms):
-    res = []
+    corridors = []
     to_link = rooms.copy()
     decal = 0
-    next = random.choice(to_link)
-    to_link.remove(next)
-    for i in range(len(to_link) - 1):
-        room_to_link = to_link[i - decal].find_closest(to_link)
-        res += corridor_gen(to_link[i - decal], room_to_link[0])
-        next = room_to_link[0]
-        to_link.remove(next)
+    next_room = random.choice(to_link)
+    to_link.remove(next_room)
+    for i in range(len(to_link)):
+        room_to_link = next_room.find_closest(to_link)
+        corridors += corridor_gen(next_room, room_to_link[0])
+        next_room = room_to_link[0]
+        to_link.remove(next_room)
         decal += 1
-    return res
+    print(i + 1)
+    print(len(corridors))
+    return corridors
 
 
 def representation(rooms, dx, dy):
