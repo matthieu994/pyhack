@@ -65,23 +65,26 @@ class Room:
 
     def init_sprites(self, dungeon, corridor=False):
         if not corridor:
-            for x in range(self.x_min + 1, self.x_max):
-                self.walls.append(Wall(dungeon, x, self.y_min, "FRONT"))
+            # for x in range(self.x_min + 1, self.x_max):
+            #     self.walls.append(Wall(dungeon, x, self.y_min, "FRONT"))
 
-            for y in range(self.y_min, self.y_max):
-                self.walls.append(Wall(dungeon, self.x_min, y, "SIDE_LEFT"))
+            # for y in range(self.y_min, self.y_max):
+            #     self.walls.append(Wall(dungeon, self.x_min, y, "SIDE_LEFT"))
 
-            for y in range(self.y_min, self.y_max):
-                self.walls.append(Wall(dungeon, self.x_max, y, "SIDE_RIGHT"))
+            # for y in range(self.y_min, self.y_max):
+            #     self.walls.append(Wall(dungeon, self.x_max, y, "SIDE_RIGHT"))
 
-            for x in range(self.x_min + 1, self.x_max):
-                self.walls.append(Wall(dungeon, x, self.y_max, "BOTTOM"))
+            # for x in range(self.x_min + 1, self.x_max):
+            #     self.walls.append(Wall(dungeon, x, self.y_max, "BOTTOM"))
 
-            self.walls.append(Wall(dungeon, self.x_min, self.y_max, "CORNER_LEFT"))
-            self.walls.append(Wall(dungeon, self.x_max, self.y_max, "CORNER_RIGHT"))
+            # self.walls.append(Wall(dungeon, self.x_min, self.y_max, "CORNER_LEFT"))
+            # self.walls.append(Wall(dungeon, self.x_max, self.y_max, "CORNER_RIGHT"))
 
-            for y in range(self.y_min + 1, self.y_max):
-                for x in range(self.x_min + 1, self.x_max):
+            # for y in range(self.y_min + 1, self.y_max):
+            #     for x in range(self.x_min + 1, self.x_max):
+            #         self.floors.append(Floor(dungeon, x, y))
+            for y in range(self.y_min, self.y_max + 1):
+                for x in range(self.x_min, self.x_max + 1):
                     self.floors.append(Floor(dungeon, x, y))
         else:
             for y in range(self.y_min, self.y_max + 1):
@@ -89,7 +92,7 @@ class Room:
                     self.floors.append(Floor(dungeon, x, y))
 
     def __str__(self):
-        return '({}, {}, {}, {})'.format(self.corners[0], self.corners[1], self.corners[2], self.corners[3])
+        return '({}, {}, {}, {})'.format(self.corners[3], self.corners[2], self.corners[1], self.corners[0])
 
 
 # Genère une salle dans un plan de dimensions x*y
