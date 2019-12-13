@@ -63,33 +63,29 @@ class Room:
                     closest = (rooms[i], i)
         return closest
 
-    def init_sprites(self, dungeon, corridor=False):
+    def init_sprites(self, dungeon, grid, corridor=False):
+        for y in range(self.y_min, self.y_max + 1):
+            for x in range(self.x_min, self.x_max + 1):
+                self.floors.append(Floor(dungeon, x, y))
+
         if not corridor:
-            # for x in range(self.x_min + 1, self.x_max):
-            #     self.walls.append(Wall(dungeon, x, self.y_min, "FRONT"))
+            for x in range(self.x_min, self.x_max + 1):
+                if grid[self.y_min - 1][x] == 0:
+                    self.walls.append(Wall(dungeon, x, self.y_min - 1, "FRONT"))
 
-            # for y in range(self.y_min, self.y_max):
-            #     self.walls.append(Wall(dungeon, self.x_min, y, "SIDE_LEFT"))
+            for y in range(self.y_min - 1, self.y_max + 1):
+                if grid[y][self.x_min-1] == 0:
+                    self.walls.append(Wall(dungeon, self.x_min - 1, y, "SIDE_LEFT"))
 
-            # for y in range(self.y_min, self.y_max):
-            #     self.walls.append(Wall(dungeon, self.x_max, y, "SIDE_RIGHT"))
+            for y in range(self.y_min - 1, self.y_max + 1):
+                if grid[y][self.x_max+1] == 0:
+                    self.walls.append(Wall(dungeon, self.x_max + 1, y, "SIDE_RIGHT"))
 
-            # for x in range(self.x_min + 1, self.x_max):
-            #     self.walls.append(Wall(dungeon, x, self.y_max, "BOTTOM"))
-
-            # self.walls.append(Wall(dungeon, self.x_min, self.y_max, "CORNER_LEFT"))
-            # self.walls.append(Wall(dungeon, self.x_max, self.y_max, "CORNER_RIGHT"))
-
-            # for y in range(self.y_min + 1, self.y_max):
-            #     for x in range(self.x_min + 1, self.x_max):
-            #         self.floors.append(Floor(dungeon, x, y))
-            for y in range(self.y_min, self.y_max + 1):
-                for x in range(self.x_min, self.x_max + 1):
-                    self.floors.append(Floor(dungeon, x, y))
-        else:
-            for y in range(self.y_min, self.y_max + 1):
-                for x in range(self.x_min, self.x_max + 1):
-                    self.floors.append(Floor(dungeon, x, y))
+            for x in range(self.x_min, self.x_max + 1):
+                if grid[self.y_max + 1][x] == 0:
+                    self.walls.append(Wall(dungeon, x, self.y_max + 1, "BOTTOM"))
+            self.walls.append(Wall(dungeon, self.x_min - 1, self.y_max + 1, "CORNER_LEFT"))
+            self.walls.append(Wall(dungeon, self.x_max + 1, self.y_max + 1, "CORNER_RIGHT"))
 
     def __str__(self):
         return '({}, {}, {}, {})'.format(self.corners[3], self.corners[2], self.corners[1], self.corners[0])
@@ -99,10 +95,10 @@ class Room:
 def room_gen(x, y):
     area, h_max, h_min, l_max, l_min = 0, 0, 0, 0, 0
     while not(x * y / 30 <= area <= x * y / 25 and h_min != h_max and l_min != l_max):
-        h_max = random.randint(0, y)
-        h_min = random.randint(0, h_max)
-        l_max = random.randint(0, x)
-        l_min = random.randint(0, l_max)
+        h_max = random.randint(1, y)
+        h_min = random.randint(1, h_max)
+        l_max = random.randint(1, x)
+        l_min = random.randint(1, l_max)
         area = (h_max - h_min) * (l_max - l_min)
     return Room(Point(l_min, h_max), Point(l_max, h_max), Point(l_max, h_min), Point(l_min, h_min))
 

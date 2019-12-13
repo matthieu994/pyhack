@@ -4,7 +4,7 @@ from random import randrange
 
 import Room
 from settings import *
-from Map import *
+from Map import Map, Camera
 from Player import *
 from Wall import *
 from Floor import *
@@ -27,8 +27,8 @@ class Game:
         self.sprites = pygame.sprite.Group()
         self.walls = pygame.sprite.Group()
         self.floors = pygame.sprite.Group()
-        self.player = Player(self, 0, 0)
         self.map = Map(self)
+        self.player = Player(self, 0, 0)
         self.camera = Camera(MAP_WIDTH * TILESIZE, MAP_HEIGHT * TILESIZE)
 
     def run(self):

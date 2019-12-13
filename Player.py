@@ -10,7 +10,7 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.dungeon = dungeon
         self.image = pygame.image.load("./assets/knight/knight_f_idle_anim_f0.png")
-        self.image = pygame.transform.scale(self.image, (TILESIZE - 2, TILESIZE - 2))
+        self.image = pygame.transform.scale(self.image, (TILESIZE - 5, TILESIZE - 5))
         self.rect = self.image.get_rect()
         self.x = x * TILESIZE
         self.y = y * TILESIZE

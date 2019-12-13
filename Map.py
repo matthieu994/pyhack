@@ -39,15 +39,15 @@ class Map:
 
     # Genereate Map (first launch)
     def generate(self):
-        self.rooms = room_generator(ROOMS, MAP_WIDTH, MAP_HEIGHT)
+        self.rooms = room_generator(ROOMS, MAP_WIDTH - 1, MAP_HEIGHT - 1)
         self.corridors = level_link(self.rooms)
         self.grid = representation(self.rooms + self.corridors, MAP_WIDTH, MAP_HEIGHT)
+        self.save()
         
         for room in self.rooms:
-            room.init_sprites(self.dungeon)
+            room.init_sprites(self.dungeon, self.grid)
         for corridor in self.corridors:
-            corridor.init_sprites(self.dungeon, True)
-            
+            corridor.init_sprites(self.dungeon, self.grid, True)
 
 class Camera:
     def __init__(self, width, height):
