@@ -15,6 +15,7 @@ class Wall(pygame.sprite.Sprite):
         self.x = x
         self.y = y
 
+    # /!\ Reverse coords : x = y
     def rand_wall(self, type):
         if type == "FRONT":
             return self.dungeon.tiles[randrange(1, 5)][0]
@@ -28,3 +29,11 @@ class Wall(pygame.sprite.Sprite):
             return self.dungeon.tiles[0][4]
         elif type == "CORNER_RIGHT":
             return self.dungeon.tiles[5][4]
+        elif type == "CORNER_BOTTOM_LEFT":
+            return self.dungeon.tiles[0][5]
+        elif type == "CORNER_BOTTOM_RIGHT":
+            return self.dungeon.tiles[3][5]
+        elif type == "CORNER_TOP_LEFT":
+            return self.dungeon.tiles[4][5]
+        elif type == "CORNER_TOP_RIGHT":
+            return self.rand_wall("FRONT")

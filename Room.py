@@ -18,6 +18,9 @@ class Point:
         return "({}, {})".format(self.x, self.y)
 
     # Renvoie true si le point se trouve dans le rectangle
+    def collide(self, room):
+        return room.x_min - 2 <= self.x <= room.x_max + 2 and room.y_min - 2 <= self.y <= room.y_max + 2
+
     def is_in(self, room):
         return room.x_min <= self.x <= room.x_max and room.y_min <= self.y <= room.y_max
 
@@ -37,11 +40,13 @@ class Room:
 
     # Renvoie true s'il y a une collision entre deux salles
     def intersection(self, room):
-        return self.corners[0].is_in(room) or self.corners[1].is_in(room) or self.corners[2].is_in(room) or self.corners[3].is_in(room) or room.corners[0].is_in(self) or room.corners[1].is_in(self) or room.corners[2].is_in(self) or room.corners[3].is_in(self) or (room.x_min <= self.x_min <= self.x_max <= room.x_max and self.y_min <= room.y_min <= room.y_max <= self.y_max) or (room.y_min <= self.y_min <= self.y_max <= room.y_max and self.x_min <= room.x_min <= room.x_max <= self.x_max) or (self.x_min <= room.x_min <= room.x_max <= self.x_max and room.y_min <= self.y_min <= self.y_max <= room.y_max) or (self.y_min <= room.y_min <= room.y_max <= self.y_max and room.x_min <= self.x_min <= self.x_max <= room.x_max)
+        return self.corners[0].collide(room) or self.corners[1].collide(room) or self.corners[2].collide(
+            room) or self.corners[3].collide(room) or room.corners[0].collide(self) or room.corners[1].collide(
+                self) or room.corners[2].collide(self) or room.corners[3].collide(self)
 
-    # Renvoit un Point qui represente le centre d'un rectangle
+    # Renvoie un Point qui represente le centre d'un rectangle
     def center(self):
-        return Point((self.x_max - self.x_min)/2 + self.x_min, (self.y_max - self.y_min)/2 + self.y_min)
+        return Point((self.x_max - self.x_min) / 2 + self.x_min, (self.y_max - self.y_min) / 2 + self.y_min)
 
     # Calcule la distance euclidienne entre 2 rectangles
     def distance(self, r):
@@ -63,29 +68,66 @@ class Room:
                     closest = (rooms[i], i)
         return closest
 
-    def init_sprites(self, dungeon, grid, corridor=False):
-        for y in range(self.y_min, self.y_max + 1):
-            for x in range(self.x_min, self.x_max + 1):
-                self.floors.append(Floor(dungeon, x, y))
+    def init_sprites(self, dungeon, map, corridor=False):
+        from Map import Map
+        cell = map.cell
 
         if not corridor:
             for x in range(self.x_min, self.x_max + 1):
-                if grid[self.y_min - 1][x] == 0:
+                if not cell(self.y_min - 1, x):
                     self.walls.append(Wall(dungeon, x, self.y_min - 1, "FRONT"))
-
-            for y in range(self.y_min - 1, self.y_max + 1):
-                if grid[y][self.x_min-1] == 0:
-                    self.walls.append(Wall(dungeon, self.x_min - 1, y, "SIDE_LEFT"))
-
-            for y in range(self.y_min - 1, self.y_max + 1):
-                if grid[y][self.x_max+1] == 0:
-                    self.walls.append(Wall(dungeon, self.x_max + 1, y, "SIDE_RIGHT"))
-
-            for x in range(self.x_min, self.x_max + 1):
-                if grid[self.y_max + 1][x] == 0:
+                if not cell(self.y_max + 1, x):
                     self.walls.append(Wall(dungeon, x, self.y_max + 1, "BOTTOM"))
+                if cell(self.y_max + 1, x + 1):  # couloir bas droite
+                    self.walls.append(Wall(dungeon, x, self.y_max + 1, "CORNER_BOTTOM_RIGHT"))
+                if cell(self.y_max + 1, x - 1):  # couloir bas gauche
+                    self.walls.append(Wall(dungeon, x, self.y_max + 1, "CORNER_BOTTOM_LEFT"))
+
+            for y in range(self.y_min - 1, self.y_max + 1):
+                if not cell(y, self.x_min - 1):
+                    self.walls.append(Wall(dungeon, self.x_min - 1, y, "SIDE_LEFT"))
+                if not cell(y, self.x_max + 1):
+                    self.walls.append(Wall(dungeon, self.x_max + 1, y, "SIDE_RIGHT"))
+                if cell(y + 1, self.x_max + 1):  # couloir haut droite à droite
+                    self.walls.append(Wall(dungeon, self.x_max + 1, y, "CORNER_TOP_RIGHT"))
+                if cell(y + 1, self.x_min - 1):  # couloir bas gauche à gauche
+                    self.walls.append(Wall(dungeon, self.x_min - 1, y, "CORNER_TOP_RIGHT"))
+                if cell(y - 1, self.x_max + 1):  # couloir haut gauche à droite
+                    self.walls.append(Wall(dungeon, self.x_max + 1, y, "CORNER_TOP_LEFT"))
+                if cell(y - 1, self.x_min - 1):  # couloir haut gauche à gauche
+                    self.walls.append(Wall(dungeon, self.x_min - 1, y, "CORNER_BOTTOM_RIGHT"))
+
+
             self.walls.append(Wall(dungeon, self.x_min - 1, self.y_max + 1, "CORNER_LEFT"))
             self.walls.append(Wall(dungeon, self.x_max + 1, self.y_max + 1, "CORNER_RIGHT"))
+
+        if corridor:
+            for y in range(self.y_min - 1, self.y_max + 1):
+                if not cell(y - 1, self.x_min - 1) and not cell(y, self.x_min - 1) and not cell(y + 1, self.x_min - 1):
+                    self.walls.append(Wall(dungeon, self.x_min - 1, y, "SIDE_LEFT"))
+                if not cell(y - 1, self.x_min + 1) and not cell(y, self.x_min + 1) and not cell(y + 1, self.x_min + 1):
+                    self.walls.append(Wall(dungeon, self.x_max + 1, y, "SIDE_RIGHT"))
+                # elif cell(y + 1, self.x_max + 1):  # couloir haut droite
+                #     self.walls.append(Wall(dungeon, self.x_max + 1, y, "CORNER_TOP_RIGHT"))
+                # elif cell(y - 1, self.x_max + 1):  # couloir haut gauche
+                #     self.walls.append(Wall(dungeon, self.x_max + 1, y, "CORNER_TOP_LEFT"))
+
+            for x in range(self.x_min - 1, self.x_max + 1):
+                if not cell(self.y_min - 1, x - 1) and not cell(self.y_min - 1, x) and not cell(self.y_min - 1, x + 1):
+                    self.walls.append(Wall(dungeon, x, self.y_min - 1, "FRONT"))
+                if not cell(self.y_min + 1, x - 1) and not cell(self.y_min + 1, x) and not cell(self.y_min + 1, x + 1):
+                    if cell(self.y_min - 1, x + 1) and not cell(self.y_min, x):
+                        self.walls.append(Wall(dungeon, x, self.y_min + 1, "CORNER_LEFT"))
+                    else:
+                        self.walls.append(Wall(dungeon, x, self.y_min + 1, "BOTTOM"))
+                # elif cell(self.y_max + 1, x + 1):  # couloir bas droite
+                #     self.walls.append(Wall(dungeon, x, self.y_max + 1, "CORNER_BOTTOM_RIGHT"))
+                # elif cell(self.y_max + 1, x - 1):  # couloir bas gauche
+                #     self.walls.append(Wall(dungeon, x, self.y_max + 1, "CORNER_BOTTOM_LEFT"))
+
+        for y in range(self.y_min, self.y_max + 1):
+            for x in range(self.x_min, self.x_max + 1):
+                self.floors.append(Floor(dungeon, x, y))
 
     def __str__(self):
         return '({}, {}, {}, {})'.format(self.corners[3], self.corners[2], self.corners[1], self.corners[0])
@@ -94,7 +136,7 @@ class Room:
 # Genère une salle dans un plan de dimensions x*y
 def room_gen(x, y):
     area, h_max, h_min, l_max, l_min = 0, 0, 0, 0, 0
-    while not(x * y / 30 <= area <= x * y / 25 and h_min != h_max and l_min != l_max):
+    while not (x * y / 30 <= area <= x * y / 25 and h_min != h_max and l_min != l_max):
         h_max = random.randint(1, y)
         h_min = random.randint(1, h_max)
         l_max = random.randint(1, x)
@@ -111,9 +153,12 @@ def room_generator(n, dx, dy):
         s = room_gen(dx, dy)
         Appropriate = True
         for room in res:
-            if s.intersection(room) or 0 <= room.x_min - s.x_max <= 1 or 0 <= s.x_min - room.x_max <= 1 or 0 <= s.y_min - room.y_max <= 1 or 0 <= room.y_min - s.y_max <= 1:
+            if s.intersection(
+                    room
+            ) or 0 <= room.x_min - s.x_max <= 1 or 0 <= s.x_min - room.x_max <= 1 or 0 <= s.y_min - room.y_max <= 1 or 0 <= room.y_min - s.y_max <= 1:
                 Appropriate = False
-        if 4 > (s.x_max - s.x_min) or (s.x_max - s.x_min) > 2 * (s.y_max - s.y_min) or 4 > (s.y_max - s.y_min) or (s.y_max - s.y_min) > 2 * (s.x_max - s.x_min):
+        if 4 > (s.x_max - s.x_min) or (s.x_max - s.x_min) > 2 * (s.y_max - s.y_min) or 4 > (s.y_max - s.y_min) or (
+                s.y_max - s.y_min) > 2 * (s.x_max - s.x_min):
             Appropriate = False
         if Appropriate:
             res.append(s)
@@ -128,9 +173,11 @@ def corridor_gen(r1, r2):
     start = Point(random.randint(r1.x_min + 1, r1.x_max), random.randint(r1.y_min + 1, r1.y_max))
     end = Point(random.randint(r2.x_min + 1, r2.x_max), random.randint(r2.y_min + 1, r2.y_max))
     if end.x > start.x:
-        corridor.append(Room(Point(start.x, start.y), Point(end.x, start.y), Point(end.x, start.y), Point(start.x, start.y)))
+        corridor.append(
+            Room(Point(start.x, start.y), Point(end.x, start.y), Point(end.x, start.y), Point(start.x, start.y)))
     else:
-        corridor.append(Room(Point(end.x, start.y), Point(start.x, start.y), Point(start.x, start.y), Point(end.x, start.y)))
+        corridor.append(
+            Room(Point(end.x, start.y), Point(start.x, start.y), Point(start.x, start.y), Point(end.x, start.y)))
     if end.y > start.y:
         corridor.append(Room(Point(end.x, end.y), Point(end.x, end.y), Point(end.x, start.y), Point(end.x, start.y)))
     else:

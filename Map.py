@@ -9,7 +9,7 @@ class Map:
         self.dungeon = dungeon
 
         # try:
-            # self.read()
+        # self.read()
         # except IOError as error:
         self.generate()
 
@@ -24,18 +24,21 @@ class Map:
 
         self.grid = [[0 for x in range(len(data[0]))] for y in range(len(data))]
 
-        for x, rows in enumerate(data):
-            for y, value in enumerate(rows):
-                self.grid[x][y] = 0 if value == "0" else 1
+        for y, rows in enumerate(data):
+            for x, value in enumerate(rows):
+                self.grid[y][x] = 0 if value == "0" else 1
 
         print(self.grid)
 
     # Save Map to file
     def save(self):
         file = open(FILE_SAVE, 'w+')
-        
+
         for line in self.grid:
             file.write(''.join(str(v) for v in line) + '\n')
+
+    def cell(self, y, x):
+        return self.grid[y][x]
 
     # Genereate Map (first launch)
     def generate(self):
@@ -43,11 +46,12 @@ class Map:
         self.corridors = level_link(self.rooms)
         self.grid = representation(self.rooms + self.corridors, MAP_WIDTH, MAP_HEIGHT)
         self.save()
-        
+
         for room in self.rooms:
-            room.init_sprites(self.dungeon, self.grid)
+            room.init_sprites(self.dungeon, self)
         for corridor in self.corridors:
-            corridor.init_sprites(self.dungeon, self.grid, True)
+            corridor.init_sprites(self.dungeon, self, True)
+
 
 class Camera:
     def __init__(self, width, height):
@@ -66,7 +70,7 @@ class Camera:
         # limit scroll to corners of map real size
         x = min(0, x)  # left
         y = min(0, y)  # top
-        x = max(-(self.width - SCREEN_WIDTH), x)  # right
-        y = max(-(self.height - SCREEN_HEIGHT), y)  # bottom
+        x = max(-(self.width - SCREEN_WIDTH) - TILESIZE + 6, x)  # right
+        y = max(-(self.height - SCREEN_HEIGHT) - TILESIZE + 6, y)  # bottom
 
         self.camera = pygame.Rect(x, y, self.width, self.height)
