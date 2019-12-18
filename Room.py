@@ -56,6 +56,10 @@ class Room:
         from Map import Map
         cell = map.cell
 
+        for y in range(self.y_min, self.y_max + 1):
+            for x in range(self.x_min, self.x_max + 1):
+                self.floors.append(Floor(dungeon, x, y))
+
         if not corridor:
             for x in range(self.x_min, self.x_max + 1):
                 if not cell(self.y_min - 1, x):
@@ -113,9 +117,6 @@ class Room:
                 # elif cell(self.y_max + 1, x - 1):  # couloir bas gauche
                 #     self.walls.append(Wall(dungeon, x, self.y_max + 1, "CORNER_BOTTOM_LEFT"))
 
-        for y in range(self.y_min, self.y_max + 1):
-            for x in range(self.x_min, self.x_max + 1):
-                self.floors.append(Floor(dungeon, x, y))
 
     def __str__(self):
         return '({}, {}, {}, {})'.format(self.corners[3], self.corners[2], self.corners[1], self.corners[0])
