@@ -28,7 +28,8 @@ class Game:
         self.walls = pygame.sprite.Group()
         self.floors = pygame.sprite.Group()
         self.map = Map(self)
-        self.player = Player(self, 0, 0)
+        randRoom = self.map.rooms[randrange(len(self.map.rooms))]
+        self.player = Player(self, randRoom.center().x, randRoom.center().y)
         self.camera = Camera(MAP_WIDTH * TILESIZE, MAP_HEIGHT * TILESIZE)
 
     def run(self):
