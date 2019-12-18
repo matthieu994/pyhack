@@ -9,10 +9,10 @@ class Map:
     def __init__(self, dungeon):
         self.dungeon = dungeon
 
-        try:
-            self.read()
-        except IOError as error:
-            self.generate()
+        # try:
+        #     self.read()
+        # except IOError as error:
+        self.generate()
 
     # Read the save file
     def read(self):
