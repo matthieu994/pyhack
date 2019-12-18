@@ -29,7 +29,7 @@ class Game:
         self.floors = pygame.sprite.Group()
         self.map = Map(self)
         randRoom = self.map.rooms[randrange(len(self.map.rooms))]
-        self.player = Player(self, randRoom.center().x, randRoom.center().y)
+        self.player = Player(self, randRoom.center())
         self.camera = Camera(MAP_WIDTH * TILESIZE, MAP_HEIGHT * TILESIZE)
 
     def run(self):
@@ -96,3 +96,16 @@ def load_tiles(filename, width, height):
         tile_table.append(line)
 
     return tile_table
+
+
+# for room in Rooms.generateur_salles(8, width, height):
+# room.draw(background)
+
+# Main Game object
+dungeon = Game()
+dungeon.show_start_screen()
+
+while True:
+    dungeon.init()
+    dungeon.run()
+    dungeon.show_go_screen()

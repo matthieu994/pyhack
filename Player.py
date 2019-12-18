@@ -3,17 +3,16 @@ import math
 
 from settings import *
 
-
 class Player(pygame.sprite.Sprite):
-    def __init__(self, dungeon, x, y):
+    def __init__(self, dungeon, point):
         self.groups = dungeon.sprites
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.dungeon = dungeon
         self.image = pygame.image.load("./assets/knight/knight_f_idle_anim_f0.png")
         self.image = pygame.transform.scale(self.image, (TILESIZE - 5, TILESIZE - 5))
         self.rect = self.image.get_rect()
-        self.x = x * TILESIZE
-        self.y = y * TILESIZE
+        self.x = point.x * TILESIZE
+        self.y = point.y * TILESIZE
         self.speed_x, self.speed_y = 0, 0
 
     def get_keys(self):

@@ -7,26 +7,10 @@ from pygame.locals import *
 from settings import *
 from Wall import *
 from Floor import *
-
-
-class Point:
-    def __init__(self, a, b):
-        self.x = a
-        self.y = b
-
-    def __str__(self):
-        return "({}, {})".format(self.x, self.y)
-
-    # Renvoie true si le point se trouve dans le rectangle
-    def collide(self, room):
-        return room.x_min - 2 <= self.x <= room.x_max + 2 and room.y_min - 2 <= self.y <= room.y_max + 2
-
-    def is_in(self, room):
-        return room.x_min <= self.x <= room.x_max and room.y_min <= self.y <= room.y_max
+from Point import Point
 
 
 class Room:
-
     # On fournit 4 Point qui vont representer les coins de nos salles et nos couloirs
     # (on parcours les coins dans l'ordre horaire en commencant par le coins en haut à gauche)
     def __init__(self, a, b, c, d):
@@ -96,7 +80,6 @@ class Room:
                     self.walls.append(Wall(dungeon, self.x_max + 1, y, "CORNER_TOP_LEFT"))
                 if cell(y - 1, self.x_min - 1):  # couloir haut gauche à gauche
                     self.walls.append(Wall(dungeon, self.x_min - 1, y, "CORNER_BOTTOM_RIGHT"))
-
 
             self.walls.append(Wall(dungeon, self.x_min - 1, self.y_max + 1, "CORNER_LEFT"))
             self.walls.append(Wall(dungeon, self.x_max + 1, self.y_max + 1, "CORNER_RIGHT"))
