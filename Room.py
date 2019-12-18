@@ -66,7 +66,7 @@ class Room:
                     self.walls.append(Wall(dungeon, x, self.y_min - 1, "FRONT"))
                 if not cell(self.y_max + 1, x):
                     self.walls.append(Wall(dungeon, x, self.y_max + 1, "BOTTOM"))
-                if cell(self.y_max + 1, x + 1):  # couloir bas droite
+                if cell(self.y_max + 1, x + 1) and not cell(self.y_max + 2, x):  # couloir bas droite
                     self.walls.append(Wall(dungeon, x, self.y_max + 1, "CORNER_BOTTOM_RIGHT"))
                 if cell(self.y_max + 1, x - 1):  # couloir bas gauche
                     self.walls.append(Wall(dungeon, x, self.y_max + 1, "CORNER_BOTTOM_LEFT"))
@@ -89,37 +89,38 @@ class Room:
             self.walls.append(Wall(dungeon, self.x_max + 1, self.y_max + 1, "CORNER_RIGHT"))
 
         if corridor:
+            x = self.x_min
+
             for y in range(self.y_min - 1, self.y_max + 1):
-                if not cell(y - 1, self.x_min - 1) and not cell(y, self.x_min - 1) and not cell(y + 1, self.x_min - 1):
-                    self.walls.append(Wall(dungeon, self.x_min - 1, y, "SIDE_LEFT"))
-                if not cell(y - 1, self.x_min + 1) and not cell(y, self.x_min + 1) and not cell(y + 1, self.x_min + 1):
+                if not cell(y - 1, x - 1) and not cell(y, x - 1) and not cell(y + 1, x - 1):
+                    self.walls.append(Wall(dungeon, x - 1, y, "SIDE_LEFT"))
+                if not cell(y - 1, x + 1) and not cell(y, x + 1) and not cell(y + 1, x + 1):
                     self.walls.append(Wall(dungeon, self.x_max + 1, y, "SIDE_RIGHT"))
-                elif cell(y + 1, self.x_min + 1) and not cell(y, self.x_min + 1):
-                    self.walls.append(Wall(dungeon, self.x_min + 1, y, "FRONT"))
+                elif cell(y + 1, x + 1) and not cell(y, x + 1):
+                    self.walls.append(Wall(dungeon, x + 1, y, "FRONT"))
                 # elif cell(y + 1, self.x_max + 1):  # couloir haut droite
                 #     self.walls.append(Wall(dungeon, self.x_max + 1, y, "CORNER_TOP_RIGHT"))
                 # elif cell(y - 1, self.x_max + 1):  # couloir haut gauche
                 #     self.walls.append(Wall(dungeon, self.x_max + 1, y, "CORNER_TOP_LEFT"))
 
+            y = self.y_min
             for x in range(self.x_min - 1, self.x_max + 1):
-                if not cell(self.y_min - 1, x - 1) and not cell(self.y_min - 1, x) and not cell(self.y_min - 1, x + 1):
-                    if cell(self.y_min + 1, x + 1) and not cell(self.y_min + 1, x):
-                        self.walls.append(Wall(dungeon, x, self.y_min + 1, "SIDE_LEFT"))
+                if not cell(y - 1, x - 1) and not cell(y - 1, x) and not cell(y - 1, x + 1):
+                    if cell(y + 1, x + 1) and not cell(y + 1, x):
+                        self.walls.append(Wall(dungeon, x, y + 1, "SIDE_LEFT"))
+                    self.walls.append(Wall(dungeon, x, y - 1, "FRONT"))
+                if not cell(y + 1, x - 1) and not cell(y + 1, x) and not cell(y + 1, x + 1):
+                    if cell(y - 1, x + 1) and not cell(y, x):
+                        self.walls.append(Wall(dungeon, x, y + 1, "CORNER_LEFT"))
                     else:
-                        self.walls.append(Wall(dungeon, x, self.y_min - 1, "FRONT"))
-                if not cell(self.y_min + 1, x - 1) and not cell(self.y_min + 1, x) and not cell(self.y_min + 1, x + 1):
-                    if cell(self.y_min - 1, x + 1) and not cell(self.y_min, x):
-                        self.walls.append(Wall(dungeon, x, self.y_min + 1, "CORNER_LEFT"))
-                    else:
-                        self.walls.append(Wall(dungeon, x, self.y_min + 1, "BOTTOM"))
+                        self.walls.append(Wall(dungeon, x, y + 1, "BOTTOM"))
                 # elif cell(self.y_max + 1, x + 1):  # couloir bas droite
                 #     self.walls.append(Wall(dungeon, x, self.y_max + 1, "CORNER_BOTTOM_RIGHT"))
                 # elif cell(self.y_max + 1, x - 1):  # couloir bas gauche
                 #     self.walls.append(Wall(dungeon, x, self.y_max + 1, "CORNER_BOTTOM_LEFT"))
 
-
     def __str__(self):
-        return '({}, {}, {}, {})'.format(self.corners[3], self.corners[2], self.corners[1], self.corners[0])
+        return "{" + ', '.join(str(corner) for corner in self.corners) + "}"
 
 
 # Genère une salle dans un plan de dimensions x*y

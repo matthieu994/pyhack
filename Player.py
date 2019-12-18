@@ -3,17 +3,21 @@ import math
 
 from settings import *
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, dungeon, point):
         self.groups = dungeon.sprites
-        pygame.sprite.Sprite.__init__(self, self.groups)
+        # pygame.sprite.Sprite.__init__(self, self.groups)
         self.dungeon = dungeon
-        self.image = pygame.image.load("./assets/knight/knight_idle.png")
-        self.image = pygame.transform.scale(self.image, (TILESIZE - 5, TILESIZE - 2))
+        self.image = pygame.image.load("./assets/knight/knight_f_idle_anim_f0.png")
+        # shadow = pygame.image.load("./assets/knight/shadow.png")
+        # pygame.sprite.Sprite.__init__(shadow, self.groups)
+        self.image = pygame.transform.scale(self.image, (TILESIZE - 7, TILESIZE - 4))
         self.rect = self.image.get_rect()
         self.x = point.x * TILESIZE
         self.y = point.y * TILESIZE
         self.speed_x, self.speed_y = 0, 0
+        self.flip = False
 
     def get_keys(self):
         self.speed_x, self.speed_y = 0, 0
@@ -31,13 +35,14 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_DOWN] or keys[pygame.K_s]:
             self.speed_y = PLAYER_SPEED
         if keys[pygame.K_LEFT] or keys[key_left]:
+            self.flip = True
             self.speed_x = -PLAYER_SPEED
         if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            self.flip = False
             self.speed_x = PLAYER_SPEED
         if self.speed_x != 0 and self.speed_y != 0:
             self.speed_x *= math.sqrt(2) / 2
-            self.speed_y *= math.sqrt(2) / 2\
-
+            self.speed_y *= math.sqrt(2) / 2
 
     def collide_walls(self, coord):
         if coord == 'X':
@@ -70,3 +75,6 @@ class Player(pygame.sprite.Sprite):
             self.collide_walls('X')
             self.rect.y = self.y
             self.collide_walls('Y')
+        
+    def draw(self, screen, camera):
+        screen.blit(pygame.transform.flip(self.image, self.flip, False), camera.apply(self))

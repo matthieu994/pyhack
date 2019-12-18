@@ -4,7 +4,7 @@ class Point:
         self.y = b
 
     def __str__(self):
-        return "({}, {})".format(self.x, self.y)
+        return "(" + "{},{}".format(self.x, self.y) + ")"
 
     # Renvoie true si le point se trouve dans le rectangle
     def collide(self, room):

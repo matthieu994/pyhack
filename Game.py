@@ -47,6 +47,7 @@ class Game:
 
     def update(self):
         self.sprites.update()
+        self.player.update()
         self.camera.update(self.player)
 
     def draw_grid(self):
@@ -57,9 +58,11 @@ class Game:
 
     def draw(self):
         self.screen.fill(BGCOLOR)
-        self.draw_grid()
+        # self.draw_grid()
         for sprite in self.sprites:
             self.screen.blit(sprite.image, self.camera.apply(sprite))
+        
+        self.player.draw(self.screen, self.camera)
 
         pygame.display.flip()
 
