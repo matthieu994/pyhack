@@ -15,5 +15,4 @@ Pyhack - A retro dungeon game made in Python for Grenoble INP - ENSIMAG
 - Multi ?
 
 ## Images
-![pyhack 1](https://matthieupetit.com/images/pyhack-1.png)
-![pyhack 2](https://matthieupetit.com/images/pyhack-2.png)
+![pyhack](https://matthieupetit.com/images/pyhack.png)
